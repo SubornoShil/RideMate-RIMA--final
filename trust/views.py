@@ -3,17 +3,13 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-
 from accounts.decorators import profile_required
 from accounts.models import UserProfile
 from config.errors import RideError
 from rides.models import RidePost, RideRequest
-
 from . import services
 from .forms import CircleJoinForm, GuardianForm, ReviewForm
 from .models import Circle, GuardianContact, Notification, Review
-
-
 @profile_required
 def review_new(request, pk, profile_id):
     ride = get_object_or_404(RidePost.objects.select_related("creator__user"), pk=pk)
@@ -34,8 +30,6 @@ def review_new(request, pk, profile_id):
         except RideError as exc:
             messages.error(request, str(exc))
     return render(request, "review_form.html", {"form": form, "ride": ride, "target": target})
-
-
 def _profile_page(request, guardian_form):
     profile = request.profile
     return render(request, "profile.html", {
@@ -45,13 +39,9 @@ def _profile_page(request, guardian_form):
         "reviews": profile.reviews_received.select_related("rater__user")[:10],
         "guardian_limit": services.MAX_GUARDIANS,
     })
-
-
 @profile_required
 def profile(request):
     return _profile_page(request, GuardianForm())
-
-
 @require_POST
 @profile_required
 def guardian_add(request):
@@ -68,8 +58,6 @@ def guardian_add(request):
             messages.error(request, str(exc))
             return redirect("trust:profile")
     return _profile_page(request, form)
-
-
 @require_POST
 @profile_required
 def guardian_delete(request, pk):
@@ -77,15 +65,11 @@ def guardian_delete(request, pk):
     guardian.delete()
     messages.success(request, "Guardian removed.")
     return redirect("trust:profile")
-
-
 @profile_required
 def notifications(request):
     items = list(Notification.objects.filter(user=request.profile)[:50])
     Notification.objects.filter(user=request.profile, is_read=False).update(is_read=True)
     return render(request, "notifications.html", {"items": items})
-
-
 @profile_required
 def analytics(request):
     if not request.user.is_staff:
@@ -112,14 +96,10 @@ def analytics(request):
         "top_routes": rides.values("start_location", "end_location")
         .annotate(n=Count("id")).order_by("-n", "start_location")[:6],
     })
-
-
 @profile_required
 def circles(request):
     mine = request.profile.circles.annotate(member_count=Count("members"))
     return render(request, "circles.html", {"circles": mine, "form": CircleJoinForm()})
-
-
 @require_POST
 @profile_required
 def circle_join(request):
@@ -133,8 +113,6 @@ def circle_join(request):
     else:
         messages.error(request, "Enter a circle code.")
     return redirect("trust:circles")
-
-
 @require_POST
 @profile_required
 def circle_leave(request, pk):

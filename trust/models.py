@@ -1,9 +1,7 @@
-"""Trust and safety: verified circles, guardians, ratings, notifications and the moderation log."""
+
 from django.conf import settings
 from django.db import models
 from django.db.models import F, Q
-
-
 class Circle(models.Model):
     name = models.CharField(max_length=80)
     code = models.CharField(max_length=20, unique=True)

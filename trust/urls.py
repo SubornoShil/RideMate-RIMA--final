@@ -1,9 +1,6 @@
 from django.urls import path
-
 from . import views
-
 app_name = "trust"
-
 urlpatterns = [
     path("rides/<int:pk>/review/<int:profile_id>/", views.review_new, name="review_new"),
     path("profile/", views.profile, name="profile"),
