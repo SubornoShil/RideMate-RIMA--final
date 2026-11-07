@@ -28,8 +28,6 @@ def build_csp(nonce: str) -> str:
         **parts,
     }
     return "; ".join(f"{key} {' '.join(values)}" for key, values in policy.items())
-
-
 class SecurityHeadersMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
