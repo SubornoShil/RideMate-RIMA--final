@@ -1,0 +1,21 @@
+{# Round map marker with a vehicle glyph. kind: car | cng | bike | rickshaw #}
+<g class="marker">
+  <circle class="marker__pulse" r="30"/>
+  <circle class="marker__disc" r="26"/>
+  {% if kind == "bike" %}
+  <circle class="g-ring" cx="-9" cy="5" r="6"/><circle class="g-ring" cx="9" cy="5" r="6"/>
+  <path class="g-line" d="M-9 5L-3-4H5L9 5M-3-4L2 5M5-4l-1-4h4"/>
+  {% elif kind == "cng" %}
+  <path class="g-fill" d="M-14 6V-1c0-7 5-11 12-11h6c6 0 9 4 11 11l3 3v4z"/>
+  <path class="g-cut" d="M-9-2c0-4 3-7 7-7h5c3 0 5 3 6 7z"/>
+  <circle class="g-wheel" cx="-8" cy="7" r="3.4"/><circle class="g-wheel" cx="10" cy="7" r="3.4"/>
+  {% elif kind == "rickshaw" %}
+  <path class="g-fill" d="M-14 3C-14-9 0-12 5 3z"/><path class="g-line" d="M-14 3h20"/>
+  <circle class="g-ring" cx="-8" cy="6" r="5"/><circle class="g-ring" cx="11" cy="6" r="5"/>
+  <circle class="g-fill" cx="12" cy="-6" r="3"/>
+  {% else %}
+  <path class="g-fill" d="M-14 6V0l3-8h22l3 8v6z"/>
+  <path class="g-cut" d="M-9-1l2-5h14l2 5z"/>
+  <circle class="g-wheel" cx="-8" cy="7" r="3.4"/><circle class="g-wheel" cx="8" cy="7" r="3.4"/>
+  {% endif %}
+</g>

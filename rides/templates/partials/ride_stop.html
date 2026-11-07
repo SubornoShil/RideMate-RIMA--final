@@ -1,0 +1,27 @@
+<li class="stop{% if ride.female_only %} stop--women{% endif %}{% if ride.in_circle %} stop--circle{% endif %}" data-reveal="slide">
+  <a class="stop__link" href="{{ ride.get_absolute_url }}">
+    <span class="stop__when">
+      <time datetime="{{ ride.departure_time|date:'c' }}">
+        <strong class="stop__day">{{ ride.departure_time|date:"D j M" }}</strong>
+        <span class="stop__clock">{{ ride.departure_time|time:"g:i A" }}</span>
+      </time>
+    </span>
+    <span class="stop__route">
+      <span class="stop__from">{{ ride.start_location }}</span>
+      <span class="stop__to">{{ ride.end_location }}</span>
+    </span>
+    <span class="stop__meta">
+      {% include "partials/vehicle_glyph.html" with kind=ride.vehicle_icon %}
+      <span>{{ ride.get_vehicle_type_display }}</span>
+      <span>{{ ride.available_seats }} seat{{ ride.available_seats|pluralize }} left</span>
+      <span>{% if ride.fare_per_seat %}Tk {{ ride.fare_per_seat }} each{% else %}Fare shared{% endif %}</span>
+    </span>
+    <span class="stop__who">
+      {{ ride.creator.display_name }}
+      <span class="stop__trust">{{ ride.creator.trust_score|floatformat:"0" }} {{ ride.creator.trust_label }}</span>
+      {% if ride.creator.is_new_account %}<span class="chip">New member</span>{% endif %}
+      {% if ride.in_circle %}<span class="chip chip--circle">Your circle</span>{% endif %}
+      {% if ride.female_only %}<span class="chip chip--women">Women only</span>{% endif %}
+    </span>
+  </a>
+</li>

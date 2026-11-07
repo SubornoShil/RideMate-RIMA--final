@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Post a ride | RideMate{% endblock %}
+
+{% block content %}
+<section class="auth auth--wide" aria-labelledby="ride-new-title">
+  <header class="auth__head">
+    <p class="eyebrow">Already going</p>
+    <h1 class="display display--medium" id="ride-new-title">Post your route</h1>
+  </header>
+
+  <form class="form" method="post" novalidate data-maps-key="{{ GOOGLE_MAPS_API_KEY }}" data-ride-form>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="form__pair">
+      {% include "partials/field.html" with field=form.start_location %}
+      {% include "partials/field.html" with field=form.end_location %}
+    </div>
+    <datalist id="dhaka-areas">
+      {% for area in areas %}<option value="{{ area }}"></option>{% endfor %}
+    </datalist>
+    {{ form.start_latitude }}{{ form.start_longitude }}{{ form.end_latitude }}{{ form.end_longitude }}
+
+    <div class="form__pair">
+      {% include "partials/field.html" with field=form.departure_time %}
+      {% include "partials/field.html" with field=form.vehicle_type %}
+    </div>
+    <div class="form__pair">
+      {% include "partials/field.html" with field=form.available_seats %}
+      {% include "partials/field.html" with field=form.fare_per_seat %}
+    </div>
+    {% include "partials/field.html" with field=form.note %}
+
+    {% if form.female_only %}
+    <div class="field field--check field--women">
+      {{ form.female_only }}
+      <label class="field__label" for="{{ form.female_only.id_for_label }}">Women-only ride</label>
+      <p class="field__hint">Only women accounts will see it or be able to ask for a seat.</p>
+    </div>
+    {% endif %}
+
+    <button class="btn" type="submit" data-magnetic>Post this ride</button>
+  </form>
+</section>
+{% endblock %}

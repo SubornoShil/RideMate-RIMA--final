@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="RideMate">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23C285"/><stop offset="1" stop-color="#095538"/></linearGradient></defs>
+  <rect width="120" height="120" rx="28" fill="url(#g)"/>
+  <text x="60" y="73" text-anchor="middle" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-weight="900" font-size="58" letter-spacing="-3" fill="#FFFFFF">RM</text>
+  <path d="M24 93H96" fill="none" stroke="#E9F7EE" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 13"/>
+  <circle cx="94" cy="26" r="8" fill="#E9F7EE"/><circle cx="94" cy="26" r="3.2" fill="#0A5A39"/>
+</svg>

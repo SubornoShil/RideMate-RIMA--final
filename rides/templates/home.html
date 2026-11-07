@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'css/mapdata.css' %}">{% endblock %}
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+<section class="stage" aria-labelledby="hero-title">
+  <div class="stage__copy">
+    <p class="eyebrow">Carpooling across Bangladesh</p>
+    <h1 class="display stage__title" id="hero-title"><span class="w">Share</span> <span class="w">the</span> <span class="w">road,</span> <span class="w w--accent">share</span> <span class="w w--accent">a</span> <span class="w w--accent">ride.</span></h1>
+    <p class="lede">Already driving Dhaka to Chattogram tomorrow? Post the trip, fill the empty seats, split the fare.</p>
+
+    <form class="search" method="get" action="{% url 'rides:home' %}#rides" aria-label="Search rides">
+      <div class="search__row">
+        <div class="field">
+          <label class="field__label" for="{{ form.start.id_for_label }}">From</label>
+          {{ form.start }}
+        </div>
+        <div class="field">
+          <label class="field__label" for="{{ form.end.id_for_label }}">To</label>
+          {{ form.end }}
+        </div>
+        <button class="btn" type="submit" data-magnetic>Find a ride</button>
+      </div>
+      <p class="search__more"><a href="{% url 'rides:ride_new' %}">Going somewhere already? Post your route</a></p>
+    </form>
+    <ul class="badges" aria-label="What you get">
+      <li>Phone-verified members</li>
+      <li>Women-only rides</li>
+      <li>Guardian SMS alerts</li>
+      <li>Rate your ride partner</li>
+    </ul>
+  </div>
+
+  <div class="stage__art">
+    {% include "partials/routemap.html" %}
+    <aside class="ridecard" aria-label="Example ride">
+      <div class="ridecard__info">
+        <p class="ridecard__tag">Example ride</p>
+        <p class="ridecard__route">Dhaka <span aria-hidden="true">→</span> Chattogram</p>
+        <p class="ridecard__meta">Fri 6:00 AM · Car · Tk 650 each</p>
+      </div>
+      <div class="ridecard__flow">
+        <div class="ridecard__seats" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="ridecard__status">
+          <p>A rider asks for a seat</p>
+          <p>You accept. Two seats left</p>
+          <p>Numbers unlock, your guardian gets an SMS</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% include "partials/roadscene.html" %}
+
+<section class="tally" aria-label="Live numbers">
+  <dl class="tally__list">
+    <div class="tally__item tally__item--sky"><dt>Members</dt><dd data-count>{{ counts.members }}</dd></div>
+    <div class="tally__item tally__item--mint"><dt>Rides coming up</dt><dd data-count>{{ counts.upcoming }}</dd></div>
+    <div class="tally__item tally__item--sun"><dt>Rides completed</dt><dd data-count>{{ counts.completed }}</dd></div>
+  </dl>
+</section>
+
+<section class="section section--stops" id="rides" aria-labelledby="rides-title">
+  <header class="section__head">
+    <h2 class="section__title" id="rides-title">Leaving soon</h2>
+    <p class="section__note">Soonest first. Rides from your circles are pinned to the top.</p>
+  </header>
+
+  <form class="filters" method="get" action="{% url 'rides:home' %}#rides" aria-label="Filter rides">
+    <div class="field">
+      <label class="field__label" for="filter-start">From contains</label>
+      <input class="field__input" id="filter-start" type="text" name="start" value="{{ form.start.value|default:'' }}" maxlength="120" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field__label" for="filter-end">To contains</label>
+      <input class="field__input" id="filter-end" type="text" name="end" value="{{ form.end.value|default:'' }}" maxlength="120" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field__label" for="{{ form.vehicle.id_for_label }}">Vehicle</label>
+      {{ form.vehicle }}
+    </div>
+    {% if can_see_women_only %}
+    <div class="field field--check">
+      {{ form.women_only }}
+      <label class="field__label" for="{{ form.women_only.id_for_label }}">Women-only rides</label>
+    </div>
+    {% endif %}
+    <button class="btn btn--ghost" type="submit">Apply</button>
+  </form>
+
+  {% if rides %}
+  <ol class="stops">
+    {% for ride in rides %}{% include "partials/ride_stop.html" %}{% endfor %}
+  </ol>
+  {% else %}
+  <div class="empty">
+    <p class="empty__title">Nothing matches that route yet.</p>
+    <p>If you travel it regularly, post it once and let the thread start.</p>
+    <a class="btn" href="{% url 'rides:ride_new' %}">Post this route</a>
+  </div>
+  {% endif %}
+</section>
+
+<section class="section section--how" id="how" aria-labelledby="how-title">
+  <header class="section__head">
+    <h2 class="section__title" id="how-title">How a ride gets tied together</h2>
+    <p class="section__note">Four steps. Nobody sees your phone number until you say yes.</p>
+  </header>
+  {% include "partials/lane.html" with id="lane-how" kind="car" mode="scroll" %}
+  <ol class="flow">
+    <li class="flow__item" data-reveal="slide">
+      <div class="flow__text">
+        <span class="flow__num" aria-hidden="true">01</span>
+        <h3>Post the trip you are already making</h3>
+        <p>Pick-up, destination, time, vehicle, seats and the fare per person. Zero means the fare is shared on the day. Women can mark a ride women-only.</p>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <p class="mock__label">Example</p>
+        <div class="mock__field"><span>From</span>Dhaka Gabtoli</div>
+        <div class="mock__field"><span>To</span>Chattogram GEC Circle</div>
+        <div class="mock__pair"><div class="mock__field"><span>When</span>Fri 6:00 AM</div><div class="mock__field"><span>Seats · Fare</span>3 · Tk 650</div></div>
+        <p class="mock__btn">Post ride</p>
+      </div>
+    </li>
+    <li class="flow__item" data-reveal="slide">
+      <div class="flow__text">
+        <span class="flow__num" aria-hidden="true">02</span>
+        <h3>Riders ask for a seat, you decide</h3>
+        <p>Each request shows the rider's trust score. Accept or decline from your dashboard. The last seat can never be given to two people.</p>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <p class="mock__label">Example</p>
+        <div class="mock__row"><span class="mock__avatar">S</span><div><strong>Suborno Shil</strong><small>100.0 Excellent</small></div><span class="mock__chip mock__chip--go">Accept</span></div>
+        <div class="mock__row"><span class="mock__avatar mock__avatar--alt">F</span><div><strong>Famin Khan</strong><small>92.0 Excellent</small></div><span class="mock__chip">Accept</span></div>
+        <div class="mock__row"><span class="mock__avatar">R</span><div><strong>Rafa Amon</strong><small>New member</small></div><span class="mock__chip">Accept</span></div>
+        <p class="mock__hint">Seats left: 3</p>
+      </div>
+    </li>
+    <li class="flow__item" data-reveal="slide">
+      <div class="flow__text">
+        <span class="flow__num" aria-hidden="true">03</span>
+        <h3>Numbers unlock, guardians are told</h3>
+        <p>After you accept, you and the rider see each other's phone numbers. Nobody else does. If the rider has Guardian Mode on, their people get the route and time by SMS.</p>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <p class="mock__label">Example</p>
+        <div class="mock__row"><span class="mock__avatar mock__avatar--alt">F</span><div><strong>Famin Khan</strong><small>01711 ••• •••</small></div></div>
+        <p class="mock__bubble">SMS to guardian: Famin rides Dhaka Gabtoli to Chattogram, Fri 6:00 AM.</p>
+        <p class="mock__hint">Seats left: 2</p>
+      </div>
+    </li>
+    <li class="flow__item" data-reveal="slide">
+      <div class="flow__text">
+        <span class="flow__num" aria-hidden="true">04</span>
+        <h3>Ride, split the fare, rate your ride partner</h3>
+        <p>When the host marks the ride complete, everyone on it can rate everyone else once. Ratings from brand-new accounts count half, so a fresh account cannot rewrite anyone's reputation.</p>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <p class="mock__label">Example</p>
+        <div class="mock__row"><span class="mock__avatar">R</span><div><strong>Rate Rafa Amon</strong><small>Your ride partner</small></div></div>
+        <p class="mock__stars">★★★★★</p>
+        <p class="mock__score">100.0 <small>Excellent</small></p>
+        <div class="mock__meter"><span></span></div>
+        <p class="mock__hint">Trust score = weighted average of ratings</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="section section--trust" id="trust" aria-labelledby="trust-title">
+  <h2 class="section__title" id="trust-title">Trust is the product</h2>
+  <dl class="trust">
+    <div class="trust__item" data-reveal="slide">
+      <dt>Verified Circles</dt>
+      <dd>Join your neighbourhood, office or campus with a code. Rides from people in your circle come first.</dd>
+    </div>
+    <div class="trust__item trust__item--women" data-reveal="slide">
+      <dt>Women-only rides</dt>
+      <dd>Created, shown and requested by women accounts only. The server enforces it, not the page.</dd>
+    </div>
+    <div class="trust__item" data-reveal="slide">
+      <dt>Guardian Mode</dt>
+      <dd>Add up to three people. When a seat is confirmed, they get the route and departure time by SMS.</dd>
+    </div>
+    <div class="trust__item" data-reveal="slide">
+      <dt>A score you can read</dt>
+      <dd>Ratings count for more once an account is a week old, so a fresh account cannot rewrite anyone's reputation.</dd>
+    </div>
+  </dl>
+</section>
+
+<section class="section section--close" aria-labelledby="close-title">
+  <h2 class="display display--medium" id="close-title">Already going that way?</h2>
+  <a class="btn btn--large" href="{% url 'rides:ride_new' %}" data-magnetic>Post your route</a>
+  {% include "partials/lane.html" with id="lane-close" kind="cng" mode="time" speed="0.06" %}
+</section>
+
+<script type="application/ld+json" nonce="{{ csp_nonce }}">
+{"@context":"https://schema.org","@type":"WebApplication","name":"RideMate","applicationCategory":"TravelApplication","operatingSystem":"Any","areaServed":"Bangladesh","description":"Community carpooling across Bangladesh with verified circles, women-only rides, Guardian Mode and trust scores."}
+</script>
+{% endblock %}

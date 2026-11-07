@@ -1,0 +1,25 @@
+/*
+ * Display: Playfair Display (Latin) with Noto Serif Bengali for Bangla. Text: Hind Siliguri (Latin and Bangla).
+ * Both load from Google Fonts in base.html with font-display: swap. To self-host, download the
+ * woff2 files into static/fonts/, add a woff2 source line to a new @font-face for each family,
+ * remove the Google link and the two hosts from the policy in core/middleware.py.
+ * Never reference a file that is not in static/fonts/: collectstatic fails on it.
+ *
+ * The fallback faces below keep the first paint close to the final layout.
+ */
+@font-face {
+  font-family: "RM Display Fallback";
+  src: local("Georgia");
+  size-adjust: 97%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "RM Text Fallback";
+  src: local("Segoe UI"), local("Helvetica Neue"), local("Arial");
+  size-adjust: 100%;
+  ascent-override: 98%;
+  descent-override: 38%;
+  line-gap-override: 0%;
+}

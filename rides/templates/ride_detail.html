@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{{ ride.start_location }} to {{ ride.end_location }} | RideMate{% endblock %}
+{% block meta_description %}{{ ride.get_vehicle_type_display }} from {{ ride.start_location }} to {{ ride.end_location }}, {{ ride.available_seats }} seat{{ ride.available_seats|pluralize }} left. Request a seat on RideMate.{% endblock %}
+{% block og_title %}{{ ride.start_location }} to {{ ride.end_location }}{% endblock %}
+{% block og_description %}Leaving {{ ride.departure_time|date:"D j M, g:i A" }}. Request a seat on RideMate.{% endblock %}
+
+{% block content %}
+<article class="ride{% if ride.female_only %} ride--women{% endif %}" aria-labelledby="ride-title">
+  <header class="ride__head">
+    <p class="eyebrow">
+      <span class="chip chip--status chip--{{ ride.status|lower }}">{{ ride.get_status_display }}</span>
+      {% if ride.female_only %}<span class="chip chip--women">Women only</span>{% endif %}
+    </p>
+    <h1 class="display display--route" id="ride-title">
+      <span class="display__from">{{ ride.start_location }}</span>
+      <span class="display__to">{{ ride.end_location }}</span>
+    </h1>
+    <svg class="ride__thread" viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M0 20 C 150 20, 200 4, 300 20 S 450 36, 600 20" fill="none" stroke="currentColor" stroke-width="2" pathLength="1" data-reveal="draw"/>
+    </svg>
+  </header>
+
+  <dl class="facts">
+    <div class="facts__item"><dt>Departs</dt><dd><time datetime="{{ ride.departure_time|date:'c' }}">{{ ride.departure_time|date:"l j F, g:i A" }}</time></dd></div>
+    <div class="facts__item"><dt>Vehicle</dt><dd>{% include "partials/vehicle_glyph.html" with kind=ride.vehicle_icon %} {{ ride.get_vehicle_type_display }}</dd></div>
+    <div class="facts__item"><dt>Seats left</dt><dd>{{ ride.available_seats }}</dd></div>
+    <div class="facts__item"><dt>Fare</dt><dd>{% if ride.fare_per_seat %}Tk {{ ride.fare_per_seat }} per person{% else %}Fare shared{% endif %}</dd></div>
+    <div class="facts__item">
+      <dt>Host</dt>
+      <dd>{{ ride.creator.display_name }}, <span class="trust-inline">{{ ride.creator.trust_score|floatformat:"1" }} {{ ride.creator.trust_label }}</span>{% if ride.creator.is_new_account %} <span class="chip">New member</span>{% endif %}</dd>
+    </div>
+  </dl>
+
+  {% if ride.note %}<p class="ride__note">{{ ride.note }}</p>{% endif %}
+
+  <p class="ride__map"><a class="link-arrow" href="{{ ride.maps_url }}" target="_blank" rel="noopener noreferrer">Open this route in Google Maps</a></p>
+
+  <section class="ride__actions" aria-labelledby="actions-title">
+    <h2 class="section__title section__title--small" id="actions-title">{% if is_host %}Your ride{% else %}Your seat{% endif %}</h2>
+
+    {% if not user.is_authenticated %}
+      <p>Log in to ask for a seat.</p>
+      <p>
+        <a class="btn" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Log in</a>
+        <a class="btn btn--ghost" href="{% url 'accounts:signup' %}">Join</a>
+      </p>
+    {% elif is_host %}
+      {% if ride.status == "OPEN" or ride.status == "FILLED" %}
+        <div class="actions">
+          <form method="post" action="{% url 'rides:ride_complete' ride.pk %}">
+            {% csrf_token %}<button class="btn" type="submit">Mark as completed</button>
+          </form>
+          <form method="post" action="{% url 'rides:ride_cancel' ride.pk %}">
+            {% csrf_token %}<button class="btn btn--danger" type="submit">Cancel this ride</button>
+          </form>
+        </div>
+      {% else %}
+        <p>This ride is {{ ride.get_status_display|lower }}.</p>
+      {% endif %}
+    {% elif my_request and my_request.status == "ACCEPTED" %}
+      <p class="status status--ok">You have a seat on this ride.</p>
+      {% if ride.status == "OPEN" or ride.status == "FILLED" %}
+      <form method="post" action="{% url 'rides:request_cancel' my_request.pk %}">
+        {% csrf_token %}<button class="btn btn--ghost" type="submit">Give up my seat</button>
+      </form>
+      {% endif %}
+    {% elif my_request and my_request.status == "PENDING" %}
+      <p class="status">Your request is waiting for the host.</p>
+      <form method="post" action="{% url 'rides:request_cancel' my_request.pk %}">
+        {% csrf_token %}<button class="btn btn--ghost" type="submit">Cancel my request</button>
+      </form>
+    {% elif my_request and my_request.status == "REJECTED" %}
+      <p class="status">The host could not take your request this time.</p>
+    {% elif can_request %}
+      {% if nav_profile and not nav_profile.is_verified %}
+        <p>Verify your phone number first. <a href="{% url 'accounts:verify_phone' %}">Enter your code</a>.</p>
+      {% else %}
+        <form method="post" action="{% url 'rides:ride_request' ride.pk %}">
+          {% csrf_token %}<button class="btn" type="submit" data-magnetic>Ask for a seat</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p>This ride is not taking requests.</p>
+    {% endif %}
+  </section>
+
+  {% if is_host and pending_requests %}
+  <section class="ride__requests" aria-labelledby="requests-title">
+    <h2 class="section__title section__title--small" id="requests-title">Waiting for you</h2>
+    <ul class="requests">
+      {% for item in pending_requests %}
+      <li class="requests__item">
+        <span class="requests__who">{{ item.requester.display_name }} <span class="trust-inline">{{ item.requester.trust_score|floatformat:"0" }} {{ item.requester.trust_label }}</span>{% if item.requester.is_new_account %} <span class="chip">New member</span>{% endif %}</span>
+        <span class="requests__buttons">
+          <form method="post" action="{% url 'rides:request_accept' item.pk %}">{% csrf_token %}<button class="btn btn--small" type="submit">Accept</button></form>
+          <form method="post" action="{% url 'rides:request_reject' item.pk %}">{% csrf_token %}<button class="btn btn--ghost btn--small" type="submit">Decline</button></form>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if contacts %}
+  <section class="ride__contacts" aria-labelledby="contacts-title">
+    <h2 class="section__title section__title--small" id="contacts-title">Who to call</h2>
+    <p class="section__note">Only you, the host and confirmed riders can see these numbers.</p>
+    <ul class="contacts">
+      {% for person in contacts %}
+      <li class="contacts__item">
+        <address class="contacts__address">
+          <strong>{{ person.name }}</strong> <span class="contacts__role">{{ person.role }}</span><br>
+          <a href="tel:{{ person.phone }}">{{ person.phone }}</a>
+        </address>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if partners %}
+  <section class="rate{% if ride.status != 'COMPLETED' %} rate--locked{% endif %}" aria-labelledby="rate-title">
+    <h2 class="section__title section__title--small" id="rate-title">Rate your ride partner{{ partners|length|pluralize }}</h2>
+    {% if ride.status == "COMPLETED" %}
+    <p class="rate__lede">Give each person 1 to 5 stars. Your rating moves their trust score, so be honest and fair.</p>
+    {% else %}
+    <p class="rate__lede">Ratings open as soon as the host marks this ride complete. You will be able to rate everyone you shared it with.</p>
+    {% endif %}
+    <ul class="rate__list">
+      {% for item in partners %}
+      <li class="rate__item">
+        <span class="rate__who">
+          <span class="rate__avatar" aria-hidden="true">{{ item.profile.display_name|slice:":1"|upper }}</span>
+          <span><strong>{{ item.profile.display_name }}</strong><small>{{ item.profile.trust_score|floatformat:"0" }} {{ item.profile.trust_label }}{% if item.profile.is_new_account %} · New member{% endif %}</small></span>
+        </span>
+        {% if item.rated %}
+          <span class="rate__state rate__state--done">Rated ✓</span>
+        {% elif ride.status == "COMPLETED" %}
+          <a class="btn btn--small" href="{% url 'trust:review_new' ride.pk item.profile.pk %}">Rate {{ item.profile.display_name }}</a>
+        {% else %}
+          <span class="rate__state">Opens after the ride</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | RideMate{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="dash-title">
+  <header class="section__head">
+    <p class="eyebrow">Hello, {{ nav_profile.display_name }}</p>
+    <h1 class="display display--medium" id="dash-title">Your rides</h1>
+  </header>
+
+  <dl class="tally__list tally__list--compact">
+    <div class="tally__item"><dt>Rides posted</dt><dd>{{ counts.rides }}</dd></div>
+    <div class="tally__item"><dt>Requests sent</dt><dd>{{ counts.requests }}</dd></div>
+    <div class="tally__item"><dt>Rides completed</dt><dd>{{ counts.completed }}</dd></div>
+  </dl>
+
+  {% if to_rate %}
+  <section class="rate" aria-labelledby="torate-title">
+    <h2 class="section__title section__title--small" id="torate-title">Rate your ride partners</h2>
+    <p class="rate__lede">These rides are finished. A quick rating keeps everyone's trust score honest.</p>
+    <ul class="rate__list">
+      {% for item in to_rate %}
+      <li class="rate__item">
+        <span class="rate__who"><span><strong>{{ item.ride.start_location }} to {{ item.ride.end_location }}</strong><small>{{ item.ride.departure_time|date:"D j M" }}</small></span></span>
+        <span class="requests__buttons">
+          {% for person in item.people %}<a class="btn btn--small" href="{% url 'trust:review_new' item.ride.pk person.pk %}">Rate {{ person.display_name }}</a>{% endfor %}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if not nav_profile.is_verified %}
+  <p class="banner banner--inline">Your phone is not verified yet. <a href="{% url 'accounts:verify_phone' %}">Enter your code</a> to post rides and send requests.</p>
+  {% endif %}
+
+  <h2 class="section__title section__title--small">Waiting for you</h2>
+  {% if incoming %}
+  <ul class="requests">
+    {% for item in incoming %}
+    <li class="requests__item">
+      <span class="requests__who">
+        {{ item.requester.display_name }} <span class="trust-inline">{{ item.requester.trust_score|floatformat:"0" }} {{ item.requester.trust_label }}</span>
+        for <a href="{{ item.ride.get_absolute_url }}">{{ item.ride.start_location }} to {{ item.ride.end_location }}</a>
+      </span>
+      <span class="requests__buttons">
+        <form method="post" action="{% url 'rides:request_accept' item.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'rides:dashboard' %}"><button class="btn btn--small" type="submit">Accept</button></form>
+        <form method="post" action="{% url 'rides:request_reject' item.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'rides:dashboard' %}"><button class="btn btn--ghost btn--small" type="submit">Decline</button></form>
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No requests waiting.</p>
+  {% endif %}
+
+  <h2 class="section__title section__title--small">Rides I posted</h2>
+  {% if my_rides %}
+  <ol class="stops">
+    {% for ride in my_rides %}{% include "partials/ride_stop.html" %}{% endfor %}
+  </ol>
+  {% else %}
+  <p class="muted">You have not posted a ride. <a href="{% url 'rides:ride_new' %}">Post one</a>.</p>
+  {% endif %}
+
+  <h2 class="section__title section__title--small">Rides I asked to join</h2>
+  {% if my_requests %}
+  <ul class="requests">
+    {% for item in my_requests %}
+    <li class="requests__item">
+      <span class="requests__who"><a href="{{ item.ride.get_absolute_url }}">{{ item.ride.start_location }} to {{ item.ride.end_location }}</a>, <time datetime="{{ item.ride.departure_time|date:'c' }}">{{ item.ride.departure_time|date:"D j M, g:i A" }}</time></span>
+      <span class="chip chip--status chip--{{ item.status|lower }}">{{ item.get_status_display }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">You have not asked to join a ride yet. <a href="{% url 'rides:home' %}#rides">Find one</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

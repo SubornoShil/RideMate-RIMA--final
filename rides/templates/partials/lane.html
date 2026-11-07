@@ -1,0 +1,9 @@
+{# A route line with one vehicle marker travelling on it. Params: id (unique), kind, mode (time|scroll), speed #}
+<div class="lane" data-lane="{{ mode|default:'time' }}">
+  <svg class="lane__svg" viewBox="0 0 800 200" aria-hidden="true" focusable="false">
+    <path class="lane__road" id="{{ id }}" d="M-20 150C120 150 160 60 300 80S520 170 660 110 760 60 820 70"/>
+    <g class="vehicle" data-track="{{ id }}" data-speed="{{ speed|default:'0.05' }}" data-offset="0.05" data-scale="1.1" data-anchor="center" data-rotate="0">
+      {% include "partials/marker.html" with kind=kind %}
+    </g>
+  </svg>
+</div>
