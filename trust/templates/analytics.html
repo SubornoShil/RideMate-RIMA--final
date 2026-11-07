@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Analytics | RideMate{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="an-title">
+  <header class="section__head">
+    <p class="eyebrow">Staff only</p>
+    <h1 class="display display--medium" id="an-title">Analytics</h1>
+  </header>
+
+  <dl class="tally__list tally__list--grid">
+    <div class="tally__item"><dt>Users</dt><dd>{{ totals.users }}</dd></div>
+    <div class="tally__item"><dt>Rides</dt><dd>{{ totals.rides }}</dd></div>
+    <div class="tally__item"><dt>Completed</dt><dd>{{ totals.completed }}</dd></div>
+    <div class="tally__item"><dt>Open</dt><dd>{{ totals.open }}</dd></div>
+    <div class="tally__item"><dt>Requests</dt><dd>{{ totals.requests }}</dd></div>
+    <div class="tally__item"><dt>Accepted</dt><dd>{{ totals.accepted }}</dd></div>
+    <div class="tally__item"><dt>Women-only rides</dt><dd>{{ totals.women_only }}</dd></div>
+    <div class="tally__item"><dt>Reviews</dt><dd>{{ totals.reviews }}</dd></div>
+  </dl>
+
+  <h2 class="section__title section__title--small">Rides by vehicle</h2>
+  {% if by_vehicle %}
+  <ul class="bars">
+    {% for row in by_vehicle %}
+    <li class="bars__item">
+      <span class="bars__label">{{ row.label }}</span>
+      <meter class="bars__meter" min="0" max="100" value="{{ row.share|floatformat:'1' }}">{{ row.share }}%</meter>
+      <span class="bars__value">{{ row.share }}% ({{ row.count }})</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">No rides yet.</p>{% endif %}
+
+  <h2 class="section__title section__title--small">Top routes</h2>
+  {% if top_routes %}
+  <ol class="routes">
+    {% for row in top_routes %}<li>{{ row.start_location }} to {{ row.end_location }} <span class="contacts__role">{{ row.n }} ride{{ row.n|pluralize }}</span></li>{% endfor %}
+  </ol>
+  {% else %}<p class="muted">No routes yet.</p>{% endif %}
+</section>
+{% endblock %}

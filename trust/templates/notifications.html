@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Alerts | RideMate{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="alerts-title">
+  <header class="section__head">
+    <h1 class="display display--medium" id="alerts-title">Alerts</h1>
+  </header>
+  {% if items %}
+  <ul class="alerts">
+    {% for item in items %}
+    <li class="alerts__item{% if not item.is_read %} alerts__item--new{% endif %}">
+      <span class="chip">{{ item.get_kind_display }}</span>
+      {% if item.link %}<a href="{{ item.link }}">{{ item.message }}</a>{% else %}<span>{{ item.message }}</span>{% endif %}
+      <time class="alerts__time" datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"j M, g:i A" }}</time>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">Nothing yet. Requests, confirmations and reviews will show up here.</p>
+  {% endif %}
+</section>
+{% endblock %}

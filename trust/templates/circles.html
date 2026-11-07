@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Verified Circles | RideMate{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="circles-title">
+  <header class="section__head">
+    <p class="eyebrow">Know who you ride with</p>
+    <h1 class="display display--medium" id="circles-title">Verified Circles</h1>
+    <p class="lede">A circle is a neighbourhood, office or campus with a shared code. Rides from people in your circle appear first.</p>
+  </header>
+
+  <form class="form form--compact" method="post" action="{% url 'trust:circle_join' %}">
+    {% csrf_token %}
+    {% include "partials/field.html" with field=form.code %}
+    <button class="btn" type="submit">Join circle</button>
+  </form>
+
+  <h2 class="section__title section__title--small">My circles</h2>
+  {% if circles %}
+  <ul class="contacts">
+    {% for circle in circles %}
+    <li class="contacts__item contacts__item--row">
+      <span><strong>{{ circle.name }}</strong> <span class="contacts__role">{{ circle.member_count }} member{{ circle.member_count|pluralize }}</span>{% if circle.description %}<br>{{ circle.description }}{% endif %}</span>
+      <form method="post" action="{% url 'trust:circle_leave' circle.pk %}">{% csrf_token %}<button class="btn btn--ghost btn--small" type="submit">Leave</button></form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">You have not joined a circle yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

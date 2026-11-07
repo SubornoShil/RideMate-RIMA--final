@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Rate {{ target.display_name }} | RideMate{% endblock %}
+
+{% block content %}
+<section class="auth" aria-labelledby="review-title">
+  <header class="auth__head">
+    <p class="eyebrow">{{ ride }}</p>
+    <h1 class="display display--medium" id="review-title">How was the ride with {{ target.display_name }}?</h1>
+  </header>
+
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <fieldset class="starpick{% if form.score.errors %} field--error{% endif %}">
+      <legend class="field__label">Your rating for {{ target.display_name }}</legend>
+      <div class="starpick__row">
+        {% for radio in form.score %}
+          {{ radio.tag }}
+          <label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }}"><span aria-hidden="true">★</span><span class="visually-hidden">{{ radio.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      <p class="starpick__words" aria-hidden="true"><span>Poor</span><span>Excellent</span></p>
+      {% if form.score.errors %}
+      <div class="field__errors" id="{{ form.score.auto_id }}_errors">
+        {% for error in form.score.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+    </fieldset>
+    {% include "partials/field.html" with field=form.comment %}
+    <button class="btn" type="submit" data-magnetic>Save my review</button>
+    <p class="auth__aside"><a href="{{ ride.get_absolute_url }}">Back to the ride</a></p>
+  </form>
+</section>
+{% endblock %}

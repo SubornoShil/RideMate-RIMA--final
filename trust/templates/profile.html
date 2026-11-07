@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Profile | RideMate{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="profile-title">
+  <header class="section__head">
+    <p class="eyebrow">{{ nav_profile.initials }}</p>
+    <h1 class="display display--medium" id="profile-title">{{ nav_profile.display_name }}</h1>
+  </header>
+
+  <div class="trustmark">
+    <p class="trustmark__score"><span data-count>{{ nav_profile.trust_score|floatformat:"1" }}</span></p>
+    <p class="trustmark__label">{{ nav_profile.trust_label }} trust score</p>
+    <p class="section__note">An average of the ratings you receive, scaled to 100. Ratings from accounts under a week old count half.</p>
+  </div>
+
+  <section class="block" aria-labelledby="guardians-title">
+    <h2 class="section__title section__title--small" id="guardians-title">Guardian Mode</h2>
+    <p class="section__note">When a seat is confirmed for you, each guardian gets an SMS with the route and departure time. Up to {{ guardian_limit }}.</p>
+    {% if guardians %}
+    <ul class="contacts">
+      {% for guardian in guardians %}
+      <li class="contacts__item contacts__item--row">
+        <span><strong>{{ guardian.guardian_name }}</strong> {{ guardian.guardian_phone }}</span>
+        <form method="post" action="{% url 'trust:guardian_delete' guardian.pk %}">{% csrf_token %}<button class="btn btn--ghost btn--small" type="submit">Remove</button></form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No guardians yet.</p>
+    {% endif %}
+
+    {% if guardians|length < guardian_limit %}
+    <form class="form form--compact" method="post" action="{% url 'trust:guardian_add' %}" novalidate>
+      {% csrf_token %}
+      {% include "partials/form_errors.html" with form=guardian_form %}
+      {% include "partials/field.html" with field=guardian_form.guardian_name %}
+      {% include "partials/field.html" with field=guardian_form.guardian_phone %}
+      <button class="btn" type="submit">Add guardian</button>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="block" aria-labelledby="my-circles-title">
+    <h2 class="section__title section__title--small" id="my-circles-title">Circles</h2>
+    {% if circles %}
+    <ul class="contacts">{% for circle in circles %}<li class="contacts__item">{{ circle.name }} <span class="contacts__role">{{ circle.code }}</span></li>{% endfor %}</ul>
+    {% else %}
+    <p class="muted">You are not in a circle. <a href="{% url 'trust:circles' %}">Join one with a code</a>.</p>
+    {% endif %}
+  </section>
+
+  <section class="block" aria-labelledby="reviews-title">
+    <h2 class="section__title section__title--small" id="reviews-title">Latest reviews</h2>
+    {% if reviews %}
+    <ul class="reviews">
+      {% for review in reviews %}
+      <li class="reviews__item">
+        <p><strong>{{ review.score }} / 5</strong> from {{ review.rater.display_name }}, <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"j M Y" }}</time></p>
+        {% if review.comment %}<p>{{ review.comment }}</p>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No reviews yet. Your score starts at 100.</p>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}
