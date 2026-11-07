@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Verify your phone | RideMate{% endblock %}
-
 {% block content %}
 <section class="auth" aria-labelledby="verify-title">
   <header class="auth__head">
@@ -8,14 +7,12 @@
     <h1 class="display display--medium" id="verify-title">Confirm your number</h1>
     <p class="lede">{% if code_sent %}We texted a 6-digit code to the number on your account. It lasts 10 minutes.{% else %}No code is waiting. Ask for one below.{% endif %}</p>
   </header>
-
   <form class="form" method="post" novalidate>
     {% csrf_token %}
     {% include "partials/form_errors.html" %}
     {% include "partials/field.html" with field=form.code %}
     <button class="btn" type="submit" data-magnetic>Verify</button>
   </form>
-
   <form class="form form--inline" method="post" action="{% url 'accounts:resend_otp' %}">
     {% csrf_token %}
     <button class="btn btn--ghost" type="submit" data-countdown="{{ resend_wait }}">Send a new code</button>
