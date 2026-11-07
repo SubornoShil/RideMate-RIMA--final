@@ -5,21 +5,14 @@ from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path, reverse
 from django.views.generic import TemplateView
-
 from . import views
-
-
-
 class StaticSitemap(Sitemap):
     changefreq = "weekly"
-
     def items(self):
         return ["rides:home", "terms", "privacy"]
 
     def location(self, item):
         return reverse(item)
-
-
 handler400 = "django.views.defaults.bad_request"
 handler403 = "django.views.defaults.permission_denied"
 handler404 = "django.views.defaults.page_not_found"
