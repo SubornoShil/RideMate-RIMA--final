@@ -1,8 +1,5 @@
 import secrets
-
 from django.conf import settings
-
-
 def build_csp(nonce: str) -> str:
     script = ["'self'", f"'nonce-{nonce}'"]
     style = ["'self'", f"'nonce-{nonce}'", "https://fonts.googleapis.com"]
@@ -34,15 +31,8 @@ def build_csp(nonce: str) -> str:
 
 
 class SecurityHeadersMiddleware:
-    """Per-request CSP nonce plus Permissions-Policy.
-
-    The admin is left on Django's own markup, which uses inline styles, and DEBUG
-    error pages use inline scripts, so neither gets the strict policy.
-    """
-
     def __init__(self, get_response):
         self.get_response = get_response
-
     def __call__(self, request):
         request.csp_nonce = secrets.token_urlsafe(16)
         response = self.get_response(request)
