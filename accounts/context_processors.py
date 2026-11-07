@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 def site(request):
-    """Site-wide template variables, plus the signed-in member for the navigation bar."""
     context = {
         "csp_nonce": getattr(request, "csp_nonce", ""),
         "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
