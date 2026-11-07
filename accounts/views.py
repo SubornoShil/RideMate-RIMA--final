@@ -1,21 +1,16 @@
 import logging
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import password_validators_help_texts
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
-
 from . import services
 from .decorators import profile_required
 from .forms import IdentifierForm, OtpForm, PasswordStepForm, SignUpForm
 from .http import client_ip, safe_next
 from .services import OtpResult
-
 logger = logging.getLogger(__name__)
 GENERIC_LOGIN_ERROR = "That email, username or password did not work."
-
-
 def signup(request):
     if request.user.is_authenticated:
         return redirect("rides:dashboard")
@@ -31,8 +26,6 @@ def signup(request):
     return render(request, "signup.html", {
         "form": form, "password_rules": password_validators_help_texts(),
     })
-
-
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("rides:dashboard")
@@ -40,7 +33,6 @@ def login_view(request):
     if request.GET.get("reset"):
         session.pop("login_identifier", None)
     ip = client_ip(request)
-
     if request.method == "POST" and request.POST.get("step") == "password":
         identifier = session.get("login_identifier", "")
         form = PasswordStepForm(request.POST)
@@ -78,14 +70,10 @@ def login_view(request):
     return render(request, "login.html", {
         "step": "identifier", "form": IdentifierForm(), "next": request.GET.get("next", ""),
     })
-
-
 @require_POST
 def logout_view(request):
     logout(request)
     return redirect("rides:home")
-
-
 @profile_required
 def verify_phone(request):
     profile = request.profile
@@ -109,8 +97,6 @@ def verify_phone(request):
         "resend_wait": services.otp_resend_wait(request.session),
         "code_sent": bool(request.session.get("otp_hash")),
     })
-
-
 @require_POST
 @profile_required
 def resend_otp(request):
@@ -124,8 +110,6 @@ def resend_otp(request):
     else:
         messages.error(request, "We could not send the code. Try again shortly.")
     return redirect("accounts:verify_phone")
-
-
 def verify_email(request, token):
     profile = services.confirm_email_token(token)
     if profile is None:
@@ -133,8 +117,6 @@ def verify_email(request, token):
     else:
         messages.success(request, "Email confirmed.")
     return redirect("rides:dashboard" if request.user.is_authenticated else "accounts:login")
-
-
 @require_POST
 @profile_required
 def resend_email(request):
