@@ -1,34 +1,14 @@
-#!/usr/bin/env python3
-"""Build the hero map partial and its pin CSS from real latitude/longitude.
 
-Run from the project root:  python tools/build_maps.py
-
-Writes
-  rides/templates/partials/routemap.html   the two map views (Inside Dhaka, Across Bangladesh)
-  static/css/mapdata.css             pin positions (the CSP blocks inline style attributes)
-
-Everything is projected with the same equirectangular formula, scaled by cos(latitude),
-so distances between places keep their real proportions.
-
-The Bangladesh outline below is a hand-traced border (about 100 points). To use an
-official outline instead, put a GeoJSON polygon in tools/bangladesh.geojson
-(Natural Earth "admin_0_countries" works) and re-run: it is picked up automatically.
-"""
 from __future__ import annotations
-
 import json
 import math
 from pathlib import Path
-
 ROOT = Path(__file__).resolve().parent.parent
 W, H = 640, 800  # shared viewBox, so both views fit the same frame
 PAD = 34
 
-# --------------------------------------------------------------------------- geometry
-
 
 class Frame:
-    """Equirectangular projection of a lat/lon box into the W x H viewBox."""
 
     def __init__(self, lat0, lat1, lon0, lon1):
         self.lat0, self.lat1, self.lon0, self.lon1 = lat0, lat1, lon0, lon1
@@ -51,7 +31,6 @@ class Frame:
 
 
 def smooth(points, tension=0.5):
-    """Catmull-Rom through the points, written as cubic Beziers."""
     if len(points) < 3:
         return "M" + "L".join(f"{x} {y}" for x, y in points)
     d = [f"M{points[0][0]} {points[0][1]}"]
@@ -63,15 +42,8 @@ def smooth(points, tension=0.5):
         c2 = (p2[0] - (p3[0] - p1[0]) * tension / 3 * 2 / 2, p2[1] - (p3[1] - p1[1]) * tension / 3 * 2 / 2)
         d.append(f"C{c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {p2[0]} {p2[1]}")
     return "".join(d)
-
-
 def polygon(points):
     return "M" + "L".join(f"{x} {y}" for x, y in points) + "Z"
-
-
-# --------------------------------------------------------------------------- Bangladesh
-
-# (lat, lon), clockwise from the north-west corner.
 BORDER = [
     (26.32, 88.10), (26.55, 88.22), (26.63, 88.45), (26.46, 88.65), (26.30, 88.72),
     (26.28, 88.92), (26.38, 89.03), (26.27, 89.20), (26.15, 89.45), (26.12, 89.70),
@@ -106,7 +78,6 @@ COUNTRY_PLACES = [
     ("mymensingh", "Mymensingh", 24.7471, 90.4203, "right"),
 ]
 COUNTRY_ROUTES = [
-    # id, from, to, vehicle, speed, offset, via (lat, lon) list
     ("c-ctg", "dhaka", "ctg", "car", 0.045, 0.10, [(23.52, 91.10)]),
     ("c-syl", "dhaka", "sylhet", "car", 0.035, 0.45, [(24.25, 91.15)]),
     ("c-raj", "dhaka", "rajshahi", "bike", 0.040, 0.70, [(24.05, 89.55)]),
@@ -128,9 +99,6 @@ def load_border():
         (poly[0] for poly in feat["coordinates"]), key=len)
     return [(lat, lon) for lon, lat in ring]
 
-
-# --------------------------------------------------------------------------- Dhaka city
-
 CITY_PLACES = [
     ("uttara", "Uttara", 23.8700, 90.3900, "left"),
     ("airport", "Airport", 23.8470, 90.4010, "right"),
@@ -145,7 +113,6 @@ CITY_PLACES = [
     ("sadarghat", "Old Dhaka", 23.7090, 90.4070, "left"),
     ("jatrabari", "Jatrabari", 23.7096, 90.4337, "right"),
 ]
-# Rivers that frame the city: Turag and Buriganga on the west and south, Balu on the east.
 TURAG_BURIGANGA = [
     (23.890, 90.395), (23.860, 90.365), (23.830, 90.345), (23.800, 90.335), (23.775, 90.331),
     (23.750, 90.334), (23.730, 90.346), (23.715, 90.372), (23.706, 90.405), (23.701, 90.440),
@@ -188,7 +155,6 @@ def vehicle(route_id, kind, speed, offset, scale):
 
 
 def build():
-    # ---- Bangladesh
     border = load_border()
     lats = [p[0] for p in border]
     lons = [p[1] for p in border]

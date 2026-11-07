@@ -11,13 +11,12 @@ import random
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-HALF = 1920  # viewBox width of one repeat; two repeats make the loop
+HALF = 1920
 
 SIGNS = ["Women-only rides", "Verified Circles", "Guardian Mode", "Split the fare"]
 
 
 def far_layer() -> str:
-    """Skyline silhouettes with lit windows. Deterministic, and seamless at the edges."""
     rnd = random.Random(11)
     parts, x = [], 0
     while x < HALF:
@@ -27,7 +26,7 @@ def far_layer() -> str:
         tone = rnd.choice(["b1", "b2", "b3"])
         y = 140 - h
         parts.append(f'<rect class="sky__b {tone}" x="{x}" y="{y}" width="{w}" height="{h}"/>')
-        if rnd.random() < 0.18:  # a water tank or mast on some roofs
+        if rnd.random() < 0.18:
             parts.append(f'<rect class="sky__b {tone}" x="{x + w / 2 - 4}" y="{y - 14}" width="8" height="14"/>')
         for wy in range(y + 10, 132, 16):
             for wx in range(x + 8, x + w - 8, 14):
@@ -38,7 +37,6 @@ def far_layer() -> str:
 
 
 def near_layer() -> str:
-    """Trees, lamp posts and the roadside signs that carry the old ticker's words."""
     rnd = random.Random(5)
     parts = []
     x = 70

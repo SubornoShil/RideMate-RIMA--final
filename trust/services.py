@@ -1,22 +1,16 @@
-"""Trust and safety rules: notifications, guardian alerts, ratings and the trust score."""
+
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.urls import reverse
-
 from accounts.models import UserProfile
 from accounts.sms import send_sms
 from config.errors import RideError
 from rides.models import RidePost, RideRequest
 from rides.utils import ride_link, ride_participants, ride_when
-
 from .models import Circle, GuardianContact, ModerationLog, Notification, Review
-
 MAX_GUARDIANS = 3
 NEW_ACCOUNT_REVIEW_WEIGHT = 0.5
-
-
 def recalculate_trust(profile: UserProfile) -> float:
-    """Weighted average of the ratings a member received, scaled to 0-100."""
     rows = list(profile.reviews_received.values_list("score", "rater_weight"))
     total_weight = sum(weight for _, weight in rows)
     if total_weight:
@@ -26,16 +20,10 @@ def recalculate_trust(profile: UserProfile) -> float:
         profile.trust_score = 100
     profile.save(update_fields=["trust_score"])
     return profile.trust_score
-
-
 def log_moderation(moderator, target: str, action: str) -> ModerationLog:
     return ModerationLog.objects.create(moderator=moderator, target=target, action=action)
-
-
 def notify(profile, message, kind=Notification.Kind.INFO, link="") -> Notification:
     return Notification.objects.create(user=profile, message=message[:255], kind=kind, link=link)
-
-
 def send_guardian_alerts(ride: RidePost, members: list[UserProfile]) -> None:
     for member in members:
         guardians = list(member.guardians.all())
@@ -52,16 +40,12 @@ def send_guardian_alerts(ride: RidePost, members: list[UserProfile]) -> None:
             Notification.Kind.GUARDIAN,
             ride_link(ride),
         )
-
-
 @transaction.atomic
 def add_guardian(profile: UserProfile, name: str, phone: str) -> GuardianContact:
     UserProfile.objects.select_for_update().get(pk=profile.pk)
     if GuardianContact.objects.filter(user=profile).count() >= MAX_GUARDIANS:
         raise RideError(f"You can add up to {MAX_GUARDIANS} guardians.")
     return GuardianContact.objects.create(user=profile, guardian_name=name, guardian_phone=phone)
-
-
 def review_problem(ride: RidePost, rater: UserProfile, target: UserProfile) -> str | None:
     if ride.status != RidePost.Status.COMPLETED:
         return "Reviews open once the ride is completed."
@@ -73,10 +57,7 @@ def review_problem(ride: RidePost, rater: UserProfile, target: UserProfile) -> s
     if Review.objects.filter(ride=ride, rater=rater, rated_user=target).exists():
         return "You already reviewed this person for this ride."
     return None
-
-
 def pending_reviews(profile: UserProfile, limit: int = 10) -> list[dict]:
-    """Completed rides this person shared where someone is still waiting for a rating."""
     rides = (
         RidePost.objects.filter(status=RidePost.Status.COMPLETED)
         .filter(Q(creator=profile) | Q(requests__requester=profile, requests__status=RideRequest.Status.ACCEPTED))
@@ -91,8 +72,6 @@ def pending_reviews(profile: UserProfile, limit: int = 10) -> list[dict]:
         if todo:
             out.append({"ride": ride, "people": todo})
     return out
-
-
 @transaction.atomic
 def submit_review(ride, rater, target, score: int, comment: str = "") -> Review:
     problem = review_problem(ride, rater, target)
@@ -114,8 +93,6 @@ def submit_review(ride, rater, target, score: int, comment: str = "") -> Review:
         reverse("trust:profile"),
     )
     return review
-
-
 def join_circle(profile: UserProfile, code: str) -> Circle:
     circle = Circle.objects.filter(code__iexact=code.strip()).first()
     if circle is None:
