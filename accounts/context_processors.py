@@ -6,8 +6,6 @@ from django.db import DatabaseError
 from .services import get_profile
 
 logger = logging.getLogger(__name__)
-
-
 def site(request):
     context = {
         "csp_nonce": getattr(request, "csp_nonce", ""),
