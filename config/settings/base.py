@@ -1,9 +1,6 @@
 from pathlib import Path
-
 from config.env import env, env_bool, env_int
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -16,7 +13,6 @@ INSTALLED_APPS = [
     "rides.apps.RidesConfig",
     "trust.apps.TrustConfig",
 ]
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -28,11 +24,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "config.middleware.SecurityHeadersMiddleware",
 ]
-
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -50,7 +44,6 @@ TEMPLATES = [
         },
     },
 ]
-
 if env("DB_NAME"):
     DATABASES = {
         "default": {
@@ -70,7 +63,6 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
 if env("REDIS_URL"):
     CACHES = {
         "default": {
@@ -96,17 +88,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 AUTHENTICATION_BACKENDS = ["accounts.backends.IdentifierBackend"]
 PASSWORD_RESET_TIMEOUT = 60 * 60
-
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "rides:dashboard"
 LOGOUT_REDIRECT_URL = "rides:home"
-
 LANGUAGE_CODE = "en"
 TIME_ZONE = "Asia/Dhaka"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -118,7 +107,6 @@ STORAGES = {
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
-
 EMAIL_BACKEND = env("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_PORT = env_int("EMAIL_PORT", 587)
@@ -126,7 +114,6 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "RideMate <no-reply@localhost>")
-
 SMS_BACKEND = env("SMS_BACKEND", "console")
 TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
@@ -134,12 +121,10 @@ TWILIO_FROM_NUMBER = env("TWILIO_FROM_NUMBER")
 SMS_HTTP_URL = env("SMS_HTTP_URL")
 SMS_HTTP_TOKEN = env("SMS_HTTP_TOKEN")
 SMS_HTTP_SENDER = env("SMS_HTTP_SENDER", "RideMate")
-
 GOOGLE_MAPS_API_KEY = env("GOOGLE_MAPS_API_KEY")
 PLAUSIBLE_DOMAIN = env("PLAUSIBLE_DOMAIN")
 ADMIN_URL = env("ADMIN_URL", "admin/")
 CONTACT_EMAIL = env("CONTACT_EMAIL")
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
