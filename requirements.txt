@@ -1,0 +1,7 @@
+# Django 5.2 is the current LTS line (security fixes into 2028).
+Django==5.2.7
+psycopg[binary]==3.2.10
+whitenoise==6.9.0
+gunicorn==23.0.0
+argon2-cffi==25.1.0
+redis==6.4.0

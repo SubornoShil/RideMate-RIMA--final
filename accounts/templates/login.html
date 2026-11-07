@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Log in | RideMate{% endblock %}
+
+{% block content %}
+<section class="auth" aria-labelledby="login-title">
+  <header class="auth__head">
+    <p class="eyebrow">{% if step == "password" %}Step 2 of 2{% else %}Step 1 of 2{% endif %}</p>
+    <h1 class="display display--medium" id="login-title">{% if step == "password" %}Your password{% else %}Welcome back{% endif %}</h1>
+  </header>
+
+  {% if step == "password" %}
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="step" value="password">
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <p class="auth__who">Signing in as <strong>{{ identifier }}</strong>. <a href="{% url 'accounts:login' %}?reset=1">Use another account</a></p>
+    {% include "partials/form_errors.html" %}
+    {% include "partials/field.html" with field=form.password %}
+    <button class="btn btn--ghost btn--small" type="button" data-toggle-password hidden aria-pressed="false">Show password</button>
+    <button class="btn" type="submit" data-magnetic>Log in</button>
+    <p class="auth__aside"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+  </form>
+  {% else %}
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="step" value="identifier">
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {% include "partials/form_errors.html" %}
+    {% include "partials/field.html" with field=form.identifier %}
+    <button class="btn" type="submit" data-magnetic>Continue</button>
+    <p class="auth__aside">New here? <a href="{% url 'accounts:signup' %}">Join RideMate</a></p>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

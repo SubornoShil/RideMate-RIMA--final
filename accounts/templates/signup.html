@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Join RideMate{% endblock %}
+{% block meta_description %}Create your RideMate account with a Bangladeshi mobile number, then verify it to post rides and request seats.{% endblock %}
+
+{% block content %}
+<section class="auth" aria-labelledby="signup-title">
+  <header class="auth__head">
+    <p class="eyebrow">New here</p>
+    <h1 class="display display--medium" id="signup-title">Join the thread</h1>
+    <p class="lede">Already a member? <a href="{% url 'accounts:login' %}">Log in</a>.</p>
+  </header>
+
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% include "partials/field.html" with field=form.full_name %}
+    {% include "partials/field.html" with field=form.email %}
+    {% include "partials/field.html" with field=form.username %}
+    {% include "partials/field.html" with field=form.phone %}
+    {% include "partials/field.html" with field=form.gender %}
+
+    <aside class="rules" aria-labelledby="rules-title">
+      <h2 class="rules__title" id="rules-title">Password rules</h2>
+      <ul class="rules__list">
+        {% for rule in password_rules %}<li>{{ rule }}</li>{% endfor %}
+      </ul>
+      <p class="rules__bonus">Stronger, but not required: a number, upper and lower case letters, a symbol.</p>
+    </aside>
+
+    <div data-password-group>
+      {% include "partials/field.html" with field=form.password1 %}
+      <div class="strength" data-strength hidden>
+        <meter class="strength__meter" min="0" max="4" value="0" aria-label="Password strength"></meter>
+        <ul class="strength__list" aria-label="Strength checklist">
+          <li data-rule="number">A number</li>
+          <li data-rule="case">Upper and lower case</li>
+          <li data-rule="symbol">A symbol</li>
+          <li data-rule="length">12 or more characters</li>
+        </ul>
+      </div>
+      {% include "partials/field.html" with field=form.password2 %}
+      <button class="btn btn--ghost btn--small" type="button" data-toggle-password hidden aria-pressed="false">Show passwords</button>
+    </div>
+
+    {% include "partials/field.html" with field=form.circle_code %}
+
+    <div class="field field--check{% if form.accept_terms.errors %} field--error{% endif %}">
+      {{ form.accept_terms }}
+      <label class="field__label" for="{{ form.accept_terms.id_for_label }}">I accept the <a href="{% url 'terms' %}">Terms</a> and <a href="{% url 'privacy' %}">Privacy</a></label>
+      {% if form.accept_terms.errors %}
+      <div class="field__errors" id="{{ form.accept_terms.auto_id }}_errors">
+        {% for error in form.accept_terms.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <button class="btn" type="submit" data-magnetic>Create my account</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+staticfiles/
+media/
+node_modules/
+.idea/
+.vscode/
+.ruff_cache/
+.pytest_cache/
