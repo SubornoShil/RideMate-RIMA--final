@@ -1,9 +1,6 @@
 from django.contrib import admin, messages
-
 from trust.services import log_moderation
-
 from .models import UserProfile
-
 admin.site.site_header = "RideMate admin"
 admin.site.site_title = "RideMate"
 admin.site.index_title = "Moderation and content"
@@ -16,7 +13,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     readonly_fields = ("trust_score", "created_at")
     list_select_related = ("user",)
     actions = ["suspend_accounts", "reactivate_accounts"]
-
     @admin.display(boolean=True, description="Active")
     def is_active_account(self, obj):
         return obj.user.is_active
