@@ -1,15 +1,12 @@
 from datetime import timedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
-
 from accounts.models import UserProfile
 from rides.models import RidePost
 from trust.models import Circle, GuardianContact
-
 DEMO_PASSWORD = "demo12345"
 MEMBERS = [
     ("suborno", "Suborno Shil", "M", "01711000001", ["MIRPUR24", "DHAKAUNI"]),
@@ -18,14 +15,11 @@ MEMBERS = [
     ("famin", "Famin Khan", "M", "01711000004", ["MIRPUR24", "DHAKAUNI"]),
     ("rafa", "Rafa Amon", "M", "01711000005", []),
 ]
-# Earlier versions of this command created these accounts; --replace-old removes them.
 OLD_DEMO_USERNAMES = ["nusrat", "rafi", "mehedi"]
 CIRCLES = [
     ("MIRPUR24", "Mirpur Neighbours", "People who live and commute around Mirpur."),
     ("DHAKAUNI", "Dhaka Campus Commuters", "Students and staff travelling to campuses."),
 ]
-
-
 class Command(BaseCommand):
     help = "Create demo members, circles and rides for local development."
 
@@ -38,7 +32,6 @@ class Command(BaseCommand):
             "--replace-old", action="store_true",
             help="Delete the earlier demo accounts (nusrat, rafi, mehedi) and their rides first.",
         )
-
     @transaction.atomic
     def handle(self, *args, **options):
         if not settings.DEBUG and not options["allow_production"]:
