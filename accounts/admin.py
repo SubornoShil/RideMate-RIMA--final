@@ -7,8 +7,6 @@ from .models import UserProfile
 admin.site.site_header = "RideMate admin"
 admin.site.site_title = "RideMate"
 admin.site.index_title = "Moderation and content"
-
-
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("display_name", "phone_number", "gender", "trust_score", "is_verified",
